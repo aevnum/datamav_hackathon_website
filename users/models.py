@@ -37,6 +37,32 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True)
     college = models.CharField(max_length=100, null=True, blank=True)
-    team = models.CharField(max_length=100, null=True, blank=True)
-    pass
+    team = models.ForeignKey(
+            'teams.Team',
+            on_delete=models.SET_NULL,
+            null=True,
+            related_name='members_of'  # Change this to avoid conflict
+        )
+
+    class Meta:
+        verbose_name = 'Custom User'
+        verbose_name_plural = 'Custom Users'
+
+    # Override groups field to avoid clash with the default User model
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='customuser_set',  # Unique related name for CustomUser
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions '
+                  'granted to each of their groups.',
+        verbose_name='groups',
+    )
+
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='customuser_set',  # Unique related name for CustomUser
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+    )
 
